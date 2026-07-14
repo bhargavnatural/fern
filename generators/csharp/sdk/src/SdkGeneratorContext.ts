@@ -149,6 +149,14 @@ export class SdkGeneratorContext extends GeneratorContext {
         );
     }
 
+    public hasWebhookSignatureVerification(): boolean {
+        return Object.values(this.ir.webhookGroups).some((webhookGroup) =>
+            webhookGroup.some(
+                (webhook) => webhook.signatureVerification != null && webhook.signatureVerification.type === "hmac"
+            )
+        );
+    }
+
     public getCoreAsIsFiles(): string[] {
         const files = [AsIsFiles.Constants, AsIsFiles.Extensions, AsIsFiles.ValueConvert];
         // JSON stuff
@@ -199,6 +207,10 @@ export class SdkGeneratorContext extends GeneratorContext {
 
         if (this.hasFormUrlEncodedEndpoints()) {
             files.push(AsIsFiles.FormRequest);
+        }
+
+        if (this.hasWebhookSignatureVerification()) {
+            files.push(AsIsFiles.WebhookSignature);
         }
 
         if (this.settings.includeExceptionHandler) {
